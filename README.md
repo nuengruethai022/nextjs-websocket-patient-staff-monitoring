@@ -1,238 +1,144 @@
 ## Agnos Candidate Assignment – Frontend
 
-Real‑time patient form + staff monitoring dashboard built with **Next.js**, **TailwindCSS**, **Socket.io**, **React Hook Form**, and **Zod**.
+โปรเจกต์ตัวอย่างสำหรับการสมัครงาน ใช้สร้างฟอร์มกรอกข้อมูลคนไข้ และหน้าจอสำหรับเจ้าหน้าที่เพื่อดูข้อมูลแบบ **Real‑time** ด้วย **Next.js**, **TailwindCSS**, **Socket.io**, **React Hook Form** และ **Zod**.
 
 ---
 
-### 1. How to run locally
+### 🔗 Live Demo
 
-- **Install dependencies**
+- **Live URL**: https://nextjs-websocket-patient-staff-monitoring.onrender.com  
+- **หมายเหตุ**: ถ้าไม่ได้ใช้งานมาสักพัก การเปิดครั้งแรกอาจโหลดช้า (cold start ของ Render)
+  - แนะนำให้รอประมาณ 20–60 วินาที แล้วค่อย refresh หน้าอีกครั้ง
+
+**วิธีที่แนะนำสำหรับการรีวิว**
+
+1. เปิด `/patient` และ `/staff` พร้อมกัน (เช่น 2 แท็บ หรือ 2 หน้าต่าง)
+2. กรอกฟอร์มที่หน้า `/patient`
+3. สังเกตว่าข้อมูลและสถานะของคนไข้บนหน้า `/staff` จะเปลี่ยนแบบ **Real‑time**
+
+---
+
+### 1. วิธีรันโปรเจกต์บนเครื่องตัวเอง
+
+1. ติดตั้ง dependencies
 
 ```bash
 npm install
 ```
 
-- **Start dev server**
+2. รัน development server
 
 ```bash
 npm run dev
 ```
 
-แล้วเปิด `http://localhost:3000` ใน browser  
+3. เปิดเบราว์เซอร์ไปที่ `http://localhost:3000`
 
-> Dev server ใช้ `server.js` (Next.js + Socket.io) แทน `next dev`
+> โปรเจกต์นี้ใช้ `server.js` เป็น custom server (Next.js + Socket.io) แทนการรัน `next dev` ตรงๆ
 
 ---
 
-### 2. Screens / Routes
+### 2. หน้าต่างๆ ในระบบ (Routes)
 
 - **Home (`/`)**
-  - หน้า landing สั้นๆ อธิบาย assignment และลิงก์ไป `/patient` และ `/staff`
+  - หน้า landing สั้นๆ อธิบายโจทย์ และมีปุ่มลิงก์ไปยังหน้า `/patient` และ `/staff`
 
 - **Patient Form (`/patient`)**
-  - ฟอร์มสำหรับคนไข้ กรอกข้อมูลพื้นฐาน + ข้อมูลติดต่อ + รายละเอียดอื่นๆ
-  - ใช้ `react-hook-form` + `zod` สำหรับ validate
-  - ระหว่างพิมพ์จะส่งข้อมูลขึ้น server แบบ real‑time ผ่าน Socket.io
-  - เมื่อ submit จะอัปเดตสถานะเป็น `submitted`
+  - ฟอร์มให้คนไข้กรอกข้อมูลส่วนตัว / การติดต่อ / รายละเอียดเพิ่มเติม
+  - ใช้ `react-hook-form` ร่วมกับ `zod` สำหรับจัดการฟอร์มและ validation
+  - ระหว่างที่พิมพ์จะส่งข้อมูลขึ้น server แบบ **Real‑time** ผ่าน Socket.io
+  - เมื่อกด submit จะส่งสถานะ `submitted` ไปให้ฝั่งเจ้าหน้าที่
 
 - **Staff View (`/staff`)**
-  - Dashboard สำหรับเจ้าหน้าที่ดูข้อมูลคนไข้แบบ real‑time
-  - แสดง status: **filling**, **submitted**, **inactive**
-  - โชว์สถานะการเชื่อมต่อ Socket (online / offline)
+  - Dashboard สำหรับเจ้าหน้าที่ ใช้ดูข้อมูลคนไข้ที่กรอกแบบ Real‑time
+  - แสดงสถานะของคนไข้เป็น badge:
+    - **filling** – กำลังกรอกฟอร์มอยู่
+    - **submitted** – ส่งฟอร์มเรียบร้อย
+    - **inactive** – ไม่ได้มีการเปลี่ยนข้อมูลเป็นเวลาหนึ่งช่วง
+  - มี indicator แสดงสถานะการเชื่อมต่อ WebSocket (online / offline)
 
 ---
 
-### 3. Form fields & validation (สรุป)
+### 3. ฟิลด์ต่างๆ ในฟอร์ม และกติกา Validation
 
-- **Patient Form – Fields**
-  - ชื่อ: First Name, Middle Name (optional), Last Name
-  - วันเกิด, เพศ (Gender)
-  - หมายเลขโทรศัพท์, อีเมล
-  - ที่อยู่
-  - Preferred Language, Nationality
-  - Emergency Contact name + relationship (optional)
+- **ฟิลด์ใน Patient Form**
+  - First Name, Middle Name (optional), Last Name  
+  - Date of Birth, Gender  
+  - Phone Number, Email  
+  - Address  
+  - Preferred Language, Nationality  
+  - Emergency Contact name + relationship (optional)  
   - Religion (optional)
 
 - **Validation (ใช้ `zod`)**
-  - Required:
-    - first name, last name
-    - date of birth, gender
-    - phone number, email
-    - address
+  - ช่องที่บังคับต้องกรอก:
+    - first name, last name  
+    - date of birth, gender  
+    - phone number, email  
+    - address  
     - preferred language, nationality
   - Phone:
-    - ตัวเลขเท่านั้น และยาวอย่างน้อย 10 หลัก
+    - ต้องเป็นตัวเลขล้วน และยาวอย่างน้อย 10 หลัก
   - Email:
-    - ต้องเป็นรูปแบบ email ที่ถูกต้อง
+    - ต้องอยู่ในรูปแบบอีเมลที่ถูกต้อง
 
 ---
 
-### 4. Tech stack
+### 4. เทคโนโลยีที่ใช้ (Tech stack)
 
 - **Framework**: Next.js (App Router)
-- **Styling**: TailwindCSS v4 (ผ่าน `app/globals.css` – ใช้ `@import "tailwindcss"`)
-- **Real‑time**: Socket.io (client + server)
+- **Styling**: TailwindCSS v4 (ผ่าน `app/globals.css` ที่ใช้ `@import "tailwindcss"`)
+- **Real‑time**: Socket.io (ทั้งฝั่ง client และ server)
 - **Forms & Validation**: React Hook Form + Zod
 
 ---
 
-### 5. Important files
+### 5. ไฟล์สำคัญในโปรเจกต์
 
-- `app/page.tsx` – Landing page + navigation  
-- `app/patient/page.tsx` – UI ฟอร์มคนไข้ + logic ส่งข้อมูล real‑time  
-- `app/staff/page.tsx` – UI dashboard เจ้าหน้าที่ + logic รับข้อมูล real‑time  
-- `app/layout.tsx` – Root layout, global fonts, include `globals.css`  
-- `app/globals.css` – Tailwind base + custom theme  
-- `hooks/useSocket.ts` – hook สำหรับเชื่อมต่อ Socket.io client  
-- `lib/validation.ts` – Zod schema + `PatientData` type  
-- `server.js` – Custom Node server (Next.js + Socket.io integration)
+- `app/page.tsx` – หน้า Landing และปุ่มนำทางไปหน้าอื่น  
+- `app/patient/page.tsx` – UI ฟอร์มคนไข้ + logic ส่งข้อมูลแบบ Real‑time  
+- `app/staff/page.tsx` – UI สำหรับเจ้าหน้าที่ + logic รับข้อมูลแบบ Real‑time  
+- `app/layout.tsx` – Root layout, ตั้งค่า font และ import `globals.css`  
+- `app/globals.css` – ตั้งค่า Tailwind และธีมสีพื้นฐาน  
+- `hooks/useSocket.ts` – React hook สำหรับเชื่อมต่อ Socket.io client  
+- `lib/validation.ts` – กำหนด Zod schema และ type `PatientData`  
+- `server.js` – Custom Node server ที่ครอบ Next.js และเชื่อม Socket.io
 
 ---
 
-### 6. Real‑time flow (ย่อ)
+### 6. ภาพรวมการทำงานแบบ Real‑time
 
-1. เปิด `/patient` และ `/staff` (เช่น สองหน้าต่าง / สองจอ)  
-2. ทั้งสองหน้าจะเชื่อมต่อ WebSocket ผ่าน `useSocket`  
-3. **บนหน้า Patient**
-   - ทุกครั้งที่ค่าฟอร์มเปลี่ยน `useEffect` จะ emit event:
-     - `update-patient-data` พร้อมค่าฟอร์มล่าสุด + status `filling`
+1. ผู้ใช้เปิด `/patient` และ `/staff` (เช่น บน 2 หน้าต่างหรือ 2 หน้าจอ)  
+2. ทั้งสองหน้าเชื่อมต่อ WebSocket ผ่าน hook `useSocket`  
+3. **ฝั่ง Patient (`/patient`)**
+   - ทุกครั้งที่มีการเปลี่ยนค่าในฟอร์ม `useEffect` จะส่ง event:
+     - `update-patient-data` พร้อมข้อมูลฟอร์มล่าสุด และสถานะ `filling`
    - มี inactivity timer 30 วินาที:
-     - ถ้าไม่มีการเปลี่ยนแปลงเลย จะส่ง `update-patient-data` พร้อม status `inactive`
-   - ตอน submit:
-     - ส่ง `update-patient-data` พร้อม status `submitted`
-4. **บน `server.js`**
-   - รับ event `update-patient-data`
-   - broadcast ต่อให้ client ทุกตัวเป็น event `receive-patient-data`
-5. **บนหน้า Staff**
+     - ถ้าไม่มีการเปลี่ยนข้อมูลเลย จะส่ง `update-patient-data` พร้อมสถานะ `inactive`
+   - ตอนกด submit:
+     - ส่ง `update-patient-data` พร้อมสถานะ `submitted`
+4. **ฝั่ง Server (`server.js`)**
+   - รอรับ event `update-patient-data`
+   - broadcast ต่อไปยังทุก client เป็น event `receive-patient-data`
+5. **ฝั่ง Staff (`/staff`)**
    - listen event `receive-patient-data`
-   - update state ทำให้ UI เปลี่ยนทันที (ข้อมูล + status badge)
+   - อัปเดต state ภายใน ทำให้ UI แสดงข้อมูลและสถานะล่าสุดทันที
 
 ---
 
-### 7. Deployment (ตัวอย่าง Render)
+### 7. Deployment บน Render (สรุป)
 
 - **Environment**: Node 18+  
 - **Build command**: `npm install && npm run build`  
-- **Start command**: `npm start` (รัน `NODE_ENV=production node server.js`)
+- **Start command**: `npm start` (สั่งรัน `NODE_ENV=production node server.js`)
 
-ขั้นตอน deploy คร่าวๆ บน Render:
+ขั้นตอนการ deploy โดยย่อ:
 
-1. Push repo นี้ขึ้น GitHub  
-2. ไปที่ [Render](https://render.com) แล้วสร้าง **Web Service** ใหม่จาก repo นี้  
-3. เลือก environment: Node  
+1. Push โปรเจกต์นี้ขึ้น GitHub  
+2. เข้าเว็บไซต์ [Render](https://render.com) แล้วสร้าง **Web Service** ใหม่จาก GitHub repo นี้  
+3. เลือกประเภท Environment เป็น Node  
 4. ตั้งค่า:
    - Build Command: `npm install && npm run build`
    - Start Command: `npm start`
-5. กด **Create Web Service** แล้วรอ deploy เสร็จ  
-6. เอา URL ที่ Render ให้มาไปใช้เป็น live URL ของ assignment
-## Agnos Candidate Assignment – Frontend
-
-Responsive, real‑time patient input form and staff monitoring view built with **Next.js**, **TailwindCSS**, **Socket.io**, **React Hook Form**, and **Zod**.
-
-### 1. Getting started
-
-- **Install dependencies**
-
-```bash
-npm install
-```
-
-- **Run development server**
-
-```bash
-npm run dev
-```
-
-Then open `http://localhost:3000` in your browser.
-
-### 2. Application overview
-
-- **Home (`/`)**
-  - Landing page explaining the assignment and providing navigation to the two main views.
-- **Patient Form (`/patient`)**
-  - Responsive form for patients to fill in personal, contact, and additional details.
-  - Uses `react-hook-form` + `zod` for validation.
-  - Emits real‑time updates via WebSocket while the patient is typing and on submit.
-- **Staff View (`/staff`)**
-  - Real‑time dashboard for staff to monitor the current patient data.
-  - Shows patient status badges: **filling**, **submitted**, and **inactive**.
-  - Indicates WebSocket connection status (online / offline).
-
-### 3. Requirements mapping
-
-- **Patient Form**
-  - Fields:
-    - First Name, Middle Name (optional), Last Name
-    - Date of Birth, Gender
-    - Phone Number, Email
-    - Address
-    - Preferred Language, Nationality
-    - Emergency Contact (name and relationship – optional)
-    - Religion (optional)
-  - Validation with `zod`:
-    - Required: first name, last name, date of birth, gender, phone number, email, address, preferred language, nationality.
-    - Phone number: at least 10 digits and numeric only.
-    - Email: must be a valid email format.
-- **Staff View**
-  - Displays all patient fields in structured cards.
-  - Status banner at the top:
-    - **filling** – patient is currently filling the form.
-    - **submitted** – patient has submitted the form.
-    - **inactive** – patient has been idle for a period of time.
-- **Real‑Time Synchronization**
-  - Implemented with **Socket.io**.
-  - Patient page emits `update-patient-data` events.
-  - Node server (`server.js`) broadcasts data as `receive-patient-data`.
-  - Staff page listens to `receive-patient-data` and updates instantly.
-  - Inactivity is detected on the patient side (no changes for 30 seconds) and updates status to `inactive`.
-
-### 4. Tech stack
-
-- **Framework**: Next.js (App Router)
-- **Styling**: TailwindCSS v4 (via `app/globals.css`)
-- **Real‑time communication**: Socket.io (client + server)
-- **Forms & validation**: React Hook Form + Zod
-
-### 5. Project structure (high level)
-
-- `app/page.tsx` – Landing page and navigation.
-- `app/patient/page.tsx` – Patient form UI and real‑time emitting logic.
-- `app/staff/page.tsx` – Staff monitoring dashboard UI and real‑time receiving logic.
-- `app/layout.tsx` – Root layout, fonts, and global styles.
-- `app/globals.css` – Tailwind and base styling.
-- `hooks/useSocket.ts` – Reusable Socket.io client hook.
-- `lib/validation.ts` – Zod schema and `PatientData` type.
-- `server.js` – Custom Node server wrapping Next.js with Socket.io integration.
-
-### 6. Real‑time synchronization flow
-
-1. Browser opens `/patient` and `/staff` (typically in two windows).
-2. Both pages establish a WebSocket connection using `useSocket`.
-3. On the patient page:
-   - Every change in the form triggers a `useEffect` that:
-     - Emits `update-patient-data` with the current form values and status `filling`.
-     - Starts a 30‑second inactivity timer; if there is no new activity, it emits data with status `inactive`.
-   - When the form is submitted, it emits `update-patient-data` with status `submitted`.
-4. On the server (`server.js`):
-   - Listens for `update-patient-data` and broadcasts the payload to all clients as `receive-patient-data`.
-5. On the staff page:
-   - Listens for `receive-patient-data` and updates local state to reflect the latest patient data and status.
-
-### 7. Deployment
-
-This project is deployed as a free Node web service on Render.
-
-- **Live URL**: https://your-app.onrender.com
-- **Environment**: Node 18+
-- **Build command**: `npm install && npm run build`
-- **Start command**: `npm start` (which runs `NODE_ENV=production node server.js`)
-
-To deploy your own instance on Render:
-
-1. Push this repository to GitHub.
-2. Go to [Render](https://render.com) and create a new **Web Service** from this GitHub repo.
-3. Choose **Environment: Node**, then set:
-   - **Build Command**: `npm install && npm run build`
-   - **Start Command**: `npm start`
-4. Click **Create Web Service** and wait for the deployment to complete.
-5. Use the generated Render URL as the public link for this assignment and update the **Live URL** above accordingly.
+5. กด **Create Web Service** แล้วรอให้ Render build + deploy ให้เสร็จ  
+6. นำ URL ที่ได้จาก Render ไปใช้เป็น Live URL สำหรับการส่งงาน
