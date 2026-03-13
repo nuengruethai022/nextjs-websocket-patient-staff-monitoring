@@ -49,9 +49,9 @@ export default function StaffPage() {
           <div className={`mb-6 p-4 rounded-lg border flex items-center justify-between ${getStatusStyle(data.status)}`}>
             <span className="font-bold uppercase tracking-wider text-sm">
               Patient Status:{" "}
-              {data.status === "filling" && "📝 Currently Filling..."}
-              {data.status === "submitted" && "✅ Information Submitted"}
-              {data.status === "inactive" && "⏸ Inactive / No Activity"}
+              {data.status === "filling" && "Currently Filling..."}
+              {data.status === "submitted" && "Information Submitted"}
+              {data.status === "inactive" && "Inactive / No Activity"}
             </span>
           </div>
         )}

@@ -106,23 +106,41 @@ npm run dev
 
 ---
 
-### 6. ภาพรวมการทำงานแบบ Real‑time
+### 6. กลไกการทำงานของระบบ Real‑time (Real‑time Logic Flow)
 
-1. ผู้ใช้เปิด `/patient` และ `/staff` (เช่น บน 2 หน้าต่างหรือ 2 หน้าจอ)  
-2. ทั้งสองหน้าเชื่อมต่อ WebSocket ผ่าน hook `useSocket`  
-3. **ฝั่ง Patient (`/patient`)**
-   - ทุกครั้งที่มีการเปลี่ยนค่าในฟอร์ม `useEffect` จะส่ง event:
-     - `update-patient-data` พร้อมข้อมูลฟอร์มล่าสุด และสถานะ `filling`
-   - มี inactivity timer 30 วินาที:
-     - ถ้าไม่มีการเปลี่ยนข้อมูลเลย จะส่ง `update-patient-data` พร้อมสถานะ `inactive`
-   - ตอนกด submit:
-     - ส่ง `update-patient-data` พร้อมสถานะ `submitted`
-4. **ฝั่ง Server (`server.js`)**
-   - รอรับ event `update-patient-data`
-   - broadcast ต่อไปยังทุก client เป็น event `receive-patient-data`
-5. **ฝั่ง Staff (`/staff`)**
-   - listen event `receive-patient-data`
-   - อัปเดต state ภายใน ทำให้ UI แสดงข้อมูลและสถานะล่าสุดทันที
+ระบบใช้แนวคิด **Event‑Driven** ผ่าน WebSocket ทำให้ข้อมูลระหว่างคนไข้และเจ้าหน้าที่อัปเดตตรงกันตลอดเวลาโดยไม่ต้องกด Refresh:
+
+**การเชื่อมต่อ (Establishing Connection)**
+
+1. เมื่อเปิดหน้า `/patient` และ `/staff` ระบบจะเรียกใช้ hook `useSocket`
+2. ทั้งสองหน้าจะเชื่อมต่อไปยัง Socket server เดียวกัน เพื่อเตรียมรับ–ส่ง event แบบ Real‑time
+
+**วงจรชีวิตของสถานะคนไข้ (Patient State Lifecycle)**
+
+- 🔵 **Filling (กำลังกรอก)**  
+  - ทุกครั้งที่มีการพิมพ์/เปลี่ยนค่าฟอร์ม (ตรวจจับผ่าน `watch`)  
+  - ระบบจะส่ง event `update-patient-data` พร้อมข้อมูลล่าสุด และสถานะ `filling` ไปที่หน้า Staff ทันที
+
+- 🟡 **Inactive (ขาดการเคลื่อนไหว)**  
+  - หากไม่มีการเปลี่ยนข้อมูลในฟอร์มเกิน 30 วินาที  
+  - timer จะส่ง event `update-patient-data` พร้อมสถานะ `inactive` เพื่อแจ้งว่าไม่มี activity จากฝั่งคนไข้
+
+- 🟢 **Submitted (ส่งข้อมูลแล้ว)**  
+  - เมื่อกดปุ่ม Submit ระบบจะส่ง event `update-patient-data` พร้อมข้อมูลฟอร์มสุดท้าย และสถานะ `submitted`  
+  - ยืนยันกับเจ้าหน้าที่ว่าคนไข้กรอกข้อมูลและส่งเสร็จสมบูรณ์แล้ว
+
+**การจัดการเมื่อมีการแก้ไข (Edit Tracking)**  
+
+- หากคนไข้กลับมาแก้ไขข้อมูลหลังจากส่งไปแล้ว (เช่น ผ่านปุ่ม “Need to edit?”)  
+  - ระบบจะรีเซ็ตสถานะกลับมาเป็น `filling` ทันที  
+  - ทำให้ฝั่งเจ้าหน้าที่เห็นว่าข้อมูลกำลังถูกแก้ไขอยู่ในขณะนั้น
+
+**การสื่อสารผ่าน Server (`server.js`)**
+
+- Server ทำหน้าที่เป็นตัวกลาง (Broadcaster)  
+- รับ event `update-patient-data` จากฝั่ง `/patient`  
+- กระจาย (broadcast) event เดิมนี้ต่อไปยัง client ทุกตัวที่เชื่อมต่ออยู่ (เช่น ทุกแท็บของ `/staff`) เป็น event `receive-patient-data`  
+- ฝั่ง `/staff` จะ listen event `receive-patient-data` และนำ payload ที่ได้รับไปอัปเดต state ทำให้ UI เปลี่ยนตามสถานะล่าสุดแบบ Real‑time
 
 ---
 
