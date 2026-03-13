@@ -17,7 +17,7 @@ export const patientSchema = z.object({
   emergencyContactName: z.string().optional(),
   emergencyContactRelation: z.string().optional(),
   religion: z.string().optional(),
-  status: z.enum(["filling", "submitted", "inactive"]).default("filling"),
+  status: z.enum(["filling", "submitted", "inactive"]).optional(),
 });
 
 export type PatientData = z.infer<typeof patientSchema>;
