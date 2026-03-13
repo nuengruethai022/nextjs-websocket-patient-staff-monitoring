@@ -1,0 +1,24 @@
+"use client";
+import { useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
+
+export const useSocket = () => {
+  const [socket, setSocket] = useState<Socket | null>(null);
+
+  useEffect(() => {
+    // เชื่อมต่อกลับมาที่ Host เดียวกัน
+    const socketInstance = io();
+
+    socketInstance.on("connect", () => {
+      console.log("Connected to WebSocket ID:", socketInstance.id);
+    });
+
+    setSocket(socketInstance);
+
+    return () => {
+      socketInstance.disconnect();
+    };
+  }, []);
+
+  return socket;
+};
