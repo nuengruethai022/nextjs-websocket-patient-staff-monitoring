@@ -1,6 +1,6 @@
-## Agnos Candidate Assignment – Frontend
+## Frontend
 
-โปรเจกต์ตัวอย่างสำหรับการสมัครงาน ใช้สร้างฟอร์มกรอกข้อมูลคนไข้ และหน้าจอสำหรับเจ้าหน้าที่เพื่อดูข้อมูลแบบ **Real‑time** ด้วย **Next.js**, **TailwindCSS**, **Socket.io**, **React Hook Form** และ **Zod**.
+สร้างฟอร์มกรอกข้อมูลคนไข้ และหน้าจอสำหรับเจ้าหน้าที่เพื่อดูข้อมูลแบบ **Real‑time** ด้วย **Next.js**, **TailwindCSS**, **Socket.io**, **React Hook Form** และ **Zod**.
 
 ---
 
